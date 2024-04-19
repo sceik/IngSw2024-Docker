@@ -1,0 +1,42 @@
+version: '3.8'
+
+services:
+  mysql:
+    image: mysql:5.7
+    environment:
+      MYSQL_DATABASE: test_schema
+      MYSQL_USER: dbuser
+      MYSQL_PASSWORD: dbpassword
+      MYSQL_ROOT_PASSWORD: test
+    volumes:
+      - db-data:/var/lib/mysql
+    networks:
+      - mynet
+
+  frontend:
+    image: frontend:latest
+    environment:
+      BACKEND_URL: http://backend:8080
+    ports:
+      - "8081:80"
+    networks:
+      - mynet
+
+  backend:
+    image: backend:latest
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:mysql://mysql:3306/test_schema
+      SPRING_DATASOURCE_USERNAME: dbuser
+      SPRING_DATASOURCE_PASSWORD: dbpassword
+    ports:
+      - "8080:8080"
+    depends_on:
+      - mysql
+    networks:
+      - mynet
+
+networks:
+  mynet:
+
+volumes:
+  db-data:
